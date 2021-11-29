@@ -33,6 +33,38 @@
             }}{{enum:rust_name}}({{enum_value:value}}i32);{{!
         }}{{/enum:values}}
     }
+    
+    pub enum {{enum:rust_name}}RustEnum {{>lib/block}}{{!
+        }}{{#enum:values}}
+        {{#enum_value:docs?}}
+        #[doc = {{enum_value:docs}}]
+        {{/enum_value:docs?}}
+        {{enum_value:rust_name}},
+        {{/enum:values}}
+    }
+
+    impl ::std::convert::TryFrom<{{enum:rust_name}}> for {{enum:rust_name}}RustEnum {{>lib/block}}
+        type Error = i32;
+
+        fn try_from(value: {{enum:rust_name}}) -> ::std::result::Result<Self, Self::Error> {{>lib/block}}
+            match value.0 {{>lib/block}}
+                {{#enum:values}}
+                {{enum_value:value}}i32 => Ok(Self::{{enum:rust_name}}),
+                {{/enum:values}}
+                x => Err(x),
+            }
+        }
+    }
+
+    impl ::std::convert::From<{{enum:rust_name}}RustEnum> for {{enum:rust_name}} {{>lib/block}}
+        fn from(value: {{enum:rust_name}}RustEnum) -> Self {{>lib/block}}
+            match value {{>lib/block}}
+                {{#enum:values}}
+                {{enum:rust_name}}RustEnum::{{enum_value:rust_name}} => Self({{enum:value}}),
+                {{/enum:values}}
+            }
+        }
+    }
 
     impl ::fbthrift::ThriftEnum for {{enum:rust_name}} {
         fn enumerate() -> &'static [({{enum:rust_name}}, &'static str)] {
